@@ -340,7 +340,7 @@ public class RaidBossSpawnManager
 		}
 	}
 	
-	private void updateDb()
+	public void updateDb()
 	{
 		Connection con = null;
 		try

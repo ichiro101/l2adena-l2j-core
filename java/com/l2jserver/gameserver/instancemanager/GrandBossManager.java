@@ -321,7 +321,7 @@ public class GrandBossManager
 		updateDb(bossId, false);
 	}
 	
-	private void storeToDb()
+	public void storeToDb()
 	{
 		Connection con = null;
 		try

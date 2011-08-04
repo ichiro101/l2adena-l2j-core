@@ -50,16 +50,26 @@ import com.l2jserver.gameserver.Announcements;
 import com.l2jserver.gameserver.GameTimeController;
 import com.l2jserver.gameserver.GmListTable;
 import com.l2jserver.gameserver.LoginServerThread;
+import com.l2jserver.gameserver.SevenSigns;
+import com.l2jserver.gameserver.SevenSignsFestival;
 import com.l2jserver.gameserver.Shutdown;
 import com.l2jserver.gameserver.ThreadPoolManager;
+import com.l2jserver.gameserver.TradeController;
 import com.l2jserver.gameserver.cache.HtmCache;
+import com.l2jserver.gameserver.datatables.ClanTable;
 import com.l2jserver.gameserver.datatables.ItemTable;
 import com.l2jserver.gameserver.datatables.MultiSell;
 import com.l2jserver.gameserver.datatables.NpcTable;
 import com.l2jserver.gameserver.datatables.SkillTable;
 import com.l2jserver.gameserver.datatables.SpawnTable;
 import com.l2jserver.gameserver.datatables.TeleportLocationTable;
+import com.l2jserver.gameserver.instancemanager.CastleManorManager;
+import com.l2jserver.gameserver.instancemanager.CursedWeaponsManager;
 import com.l2jserver.gameserver.instancemanager.DayNightSpawnManager;
+import com.l2jserver.gameserver.instancemanager.GlobalVariablesManager;
+import com.l2jserver.gameserver.instancemanager.GrandBossManager;
+import com.l2jserver.gameserver.instancemanager.ItemAuctionManager;
+import com.l2jserver.gameserver.instancemanager.ItemsOnGroundManager;
 import com.l2jserver.gameserver.instancemanager.Manager;
 import com.l2jserver.gameserver.instancemanager.QuestManager;
 import com.l2jserver.gameserver.instancemanager.RaidBossSpawnManager;
@@ -75,7 +85,9 @@ import com.l2jserver.gameserver.model.actor.L2Summon;
 import com.l2jserver.gameserver.model.actor.instance.L2DoorInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2MonsterInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.gameserver.model.entity.Hero;
 import com.l2jserver.gameserver.model.itemcontainer.Inventory;
+import com.l2jserver.gameserver.model.olympiad.Olympiad;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.clientpackets.Say2;
 import com.l2jserver.gameserver.network.serverpackets.CharInfo;
@@ -269,6 +281,7 @@ public class GameStatusThread extends Thread
 					_print.println("enchant <player> <itemType> <enchant> (itemType: 1 - Helmet, 2 - Chest, 3 - Gloves, 4 - Feet, 5 - Legs, 6 - Right Hand, 7 - Left Hand, 8 - Left Ear, 9 - Right Ear , 10 - Left Finger, 11 - Right Finger, 12- Necklace, 13 - Underwear, 14 - Back, 15 - Belt, 0 - No Enchant)");
 					_print.println("debug <cmd>           - executes the debug command (see 'help debug').");
 					_print.println("reload <type>         - reload data");
+					_print.println("persist               - persists all current data to the database.");
 					_print.println("jail <player> [time]");
 					_print.println("unjail <player>");
 					_print.println("quit                  - closes telnet session.");
@@ -604,8 +617,50 @@ public class GameStatusThread extends Thread
 					}
 					catch (Exception e)
 					{
-						
+
 					}
+				}
+				else if (_usrCommand.equals("persist")) {
+					// Seven Signs data is now saved along with Festival data.
+					if (!SevenSigns.getInstance().isSealValidationPeriod())
+						SevenSignsFestival.getInstance().saveFestivalData(false);
+
+					// Save Seven Signs data before closing. :)
+					SevenSigns.getInstance().saveSevenSignsData();
+					SevenSigns.getInstance().saveSevenSignsStatus();
+
+					// Save all raidboss and GrandBoss status ^_^
+					RaidBossSpawnManager.getInstance().updateDb();
+					_print.println("RaidBossSpawnManager: All raidboss info saved!!");
+					GrandBossManager.getInstance().storeToDb();
+					_print.println("GrandBossManager: All Grand Boss info saved!!");
+					_print.println("TradeController saving data.. This action may take some minutes! Please wait until completed!");
+					TradeController.getInstance().dataCountStore();
+					_print.println("TradeController: All count Item Saved");
+					Olympiad.getInstance().saveOlympiadStatus();
+					_print.println("Olympiad System: Data saved!!");
+					ClanTable.getInstance().storeClanScore();
+					_print.println("Clan System: Data saved!!");
+
+					// Save Cursed Weapons data before closing.
+					CursedWeaponsManager.getInstance().saveData();
+
+					// Save all manor data
+					CastleManorManager.getInstance().save();
+
+					// Save all global (non-player specific) Quest data that needs to persist after reboot
+					QuestManager.getInstance().save();
+
+					// Save all global variables data
+					GlobalVariablesManager.getInstance().saveVars();
+
+					//Save items on ground before closing
+					if (Config.SAVE_DROPPED_ITEM)
+					{
+						ItemsOnGroundManager.getInstance().saveInDb();
+						_print.println("ItemsOnGroundManager: All items on ground saved!!");
+					}
+					_print.println("Finished persisting data.");
 				}
 				else if (_usrCommand.startsWith("jail"))
 				{

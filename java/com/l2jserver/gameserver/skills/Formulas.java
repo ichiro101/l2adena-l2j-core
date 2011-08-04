@@ -1260,7 +1260,7 @@ public final class Formulas
 			
 			// Calculate Movement bonus
 			if (player.isSitting())
-				mpRegenMultiplier *= 1.5; // Sitting
+				mpRegenMultiplier *= 1.5 * Config.SITTING_MP_REGEN_MULTIPLIER; // Sitting
 			else if (!player.isMoving())
 				mpRegenMultiplier *= 1.1; // Staying
 			else if (player.isRunning())

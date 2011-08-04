@@ -281,7 +281,12 @@ public class CharStat
 		if (_activeChar == null)
 			return 1;
 		
-		return (int) calcStat(Stats.MAX_HP, _activeChar.getTemplate().baseHpMax, null, null);
+
+		float bonusHp = 1;
+		if (_activeChar.isRaid() || _activeChar.isRaidMinion())
+			bonusHp *= Config.RAID_MAXHP_MULTIPLIER;
+
+		return (int) calcStat(Stats.MAX_HP, _activeChar.getTemplate().baseHpMax * bonusHp, null, null);
 	}
 	
 	public int getMaxRecoverableHp()
@@ -331,7 +336,7 @@ public class CharStat
 		float bonusAtk = 1;
 		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.isChampion())
 			bonusAtk = Config.L2JMOD_CHAMPION_ATK;
-		if (_activeChar.isRaid())
+		if (_activeChar.isRaid() || _activeChar.isRaidMinion())
 			bonusAtk *= Config.RAID_MATTACK_MULTIPLIER;
 		double attack = _activeChar.getTemplate().baseMAtk * bonusAtk;
 		// Get the skill type to calculate its effect in function of base stats
@@ -430,7 +435,7 @@ public class CharStat
 		double defence = _activeChar.getTemplate().baseMDef;
 		
 		// Calculate modifier for Raid Bosses
-		if (_activeChar.isRaid())
+		if (_activeChar.isRaid() || _activeChar.isRaidMinion())
 			defence *= Config.RAID_MDEFENCE_MULTIPLIER;
 		
 		// Calculate modifiers Magic Attack
@@ -494,7 +499,7 @@ public class CharStat
 		float bonusAtk = 1;
 		if  (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.isChampion())
 			bonusAtk = Config.L2JMOD_CHAMPION_ATK;
-		if (_activeChar.isRaid())
+		if (_activeChar.isRaid() || _activeChar.isRaidMinion())
 			bonusAtk *= Config.RAID_PATTACK_MULTIPLIER;
 		return (int) calcStat(Stats.POWER_ATTACK, _activeChar.getTemplate().basePAtk * bonusAtk, target, null);
 	}

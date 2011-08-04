@@ -770,6 +770,7 @@ public final class Config
 	public static double RAID_MDEFENCE_MULTIPLIER;
 	public static double RAID_PATTACK_MULTIPLIER;
 	public static double RAID_MATTACK_MULTIPLIER;
+	public static double RAID_MAXHP_MULTIPLIER;
 	public static double RAID_MINION_RESPAWN_TIMER;
 	public static float RAID_MIN_RESPAWN_MULTIPLIER;
 	public static float RAID_MAX_RESPAWN_MULTIPLIER;
@@ -1000,6 +1001,7 @@ public final class Config
 	public static double HP_REGEN_MULTIPLIER;
 	public static double MP_REGEN_MULTIPLIER;
 	public static double CP_REGEN_MULTIPLIER;
+	public static double SITTING_MP_REGEN_MULTIPLIER;
 	public static boolean IS_TELNET_ENABLED;
 	public static boolean SHOW_LICENCE;
 	public static boolean ACCEPT_NEW_GAMESERVER;
@@ -1477,6 +1479,7 @@ public final class Config
 					HP_REGEN_MULTIPLIER = Double.parseDouble(Character.getProperty("HpRegenMultiplier", "100")) /100;
 					MP_REGEN_MULTIPLIER = Double.parseDouble(Character.getProperty("MpRegenMultiplier", "100")) /100;
 					CP_REGEN_MULTIPLIER = Double.parseDouble(Character.getProperty("CpRegenMultiplier", "100")) /100;
+					SITTING_MP_REGEN_MULTIPLIER = Double.parseDouble(Character.getProperty("SittingMpRegenMultiplier", "100")) /100;
 					ALT_GAME_TIREDNESS = Boolean.parseBoolean(Character.getProperty("AltGameTiredness", "false"));
 					ENABLE_MODIFY_SKILL_DURATION = Boolean.parseBoolean(Character.getProperty("EnableModifySkillDuration", "false"));
 					
@@ -2102,6 +2105,7 @@ public final class Config
 					RAID_MDEFENCE_MULTIPLIER = Double.parseDouble(NPC.getProperty("RaidMDefenceMultiplier", "100")) /100;
 					RAID_PATTACK_MULTIPLIER = Double.parseDouble(NPC.getProperty("RaidPAttackMultiplier", "100")) /100;
 					RAID_MATTACK_MULTIPLIER = Double.parseDouble(NPC.getProperty("RaidMAttackMultiplier", "100")) /100;
+					RAID_MAXHP_MULTIPLIER = Double.parseDouble(NPC.getProperty("RaidMaxHPMultiplier", "100")) / 100;
 					RAID_MIN_RESPAWN_MULTIPLIER = Float.parseFloat(NPC.getProperty("RaidMinRespawnMultiplier", "1.0"));
 					RAID_MAX_RESPAWN_MULTIPLIER = Float.parseFloat(NPC.getProperty("RaidMaxRespawnMultiplier", "1.0"));
 					RAID_MINION_RESPAWN_TIMER = Integer.parseInt(NPC.getProperty("RaidMinionRespawnTime", "300000"));
@@ -3156,6 +3160,7 @@ public final class Config
 		else if (pName.equalsIgnoreCase("HpRegenMultiplier")) HP_REGEN_MULTIPLIER = Double.parseDouble(pValue);
 		else if (pName.equalsIgnoreCase("MpRegenMultiplier")) MP_REGEN_MULTIPLIER = Double.parseDouble(pValue);
 		else if (pName.equalsIgnoreCase("CpRegenMultiplier")) CP_REGEN_MULTIPLIER = Double.parseDouble(pValue);
+		else if (pName.equalsIgnoreCase("SittingHpRegenMultiplier")) SITTING_MP_REGEN_MULTIPLIER = Double.parseDouble(pValue);
 		
 		else if (pName.equalsIgnoreCase("RaidHpRegenMultiplier")) RAID_HP_REGEN_MULTIPLIER = Double.parseDouble(pValue);
 		else if (pName.equalsIgnoreCase("RaidMpRegenMultiplier")) RAID_MP_REGEN_MULTIPLIER = Double.parseDouble(pValue);
@@ -3163,6 +3168,7 @@ public final class Config
 		else if (pName.equalsIgnoreCase("RaidMDefenceMultiplier")) RAID_MDEFENCE_MULTIPLIER = Double.parseDouble(pValue) /100;
 		else if (pName.equalsIgnoreCase("RaidPAttackMultiplier")) RAID_PATTACK_MULTIPLIER = Double.parseDouble(pValue) /100;
 		else if (pName.equalsIgnoreCase("RaidMAttackMultiplier")) RAID_MATTACK_MULTIPLIER = Double.parseDouble(pValue) /100;
+		else if (pName.equalsIgnoreCase("RaidMaxHPMultiplier")) RAID_MAXHP_MULTIPLIER = Double.parseDouble(pValue) / 100;
 		else if (pName.equalsIgnoreCase("RaidMinionRespawnTime")) RAID_MINION_RESPAWN_TIMER =Integer.parseInt(pValue);
 		else if (pName.equalsIgnoreCase("RaidChaosTime")) RAID_CHAOS_TIME =Integer.parseInt(pValue);
 		else if (pName.equalsIgnoreCase("GrandChaosTime")) GRAND_CHAOS_TIME =Integer.parseInt(pValue);

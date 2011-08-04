@@ -2809,34 +2809,56 @@ public final class L2PcInstance extends L2Playable
 		restoreDeathPenaltyBuffLevel();
 	}
 	
+	public int giveAvailableSkills(boolean includedByFs, boolean includeAutoGet) {
+		return giveAvailableSkills(includedByFs, includeAutoGet, false);
+	}
 	/**
 	 * Give all available skills to the player.<br>
 	 * @param includedByFs
 	 * @param includeAutoGet
 	 * @return skillCounter, the amount of new skills added.
 	 */
-	public int giveAvailableSkills(boolean includedByFs, boolean includeAutoGet)
+	public int giveAvailableSkills(boolean includedByFs, boolean includeAutoGet, boolean consumeSp)
 	{
-		int unLearnable = 0;
 		int skillCounter = 0;
-		
+		int skillLvlCounter = 0;
+		int spConsumed = 0;
+		boolean learned = false;
+		boolean insufficientSp = false;
+
 		// Get available skills
 		FastList<L2SkillLearn> skills = SkillTreesData.getInstance().getAvailableSkills(this, getClassId(), includedByFs, includeAutoGet);
-		
-		while (skills.size() > unLearnable)
+
+		do
 		{
+			learned = false;
 			for (L2SkillLearn s: skills)
 			{
 				L2Skill sk = SkillTable.getInstance().getInfo(s.getSkillId(), s.getSkillLevel());
-				if (sk == null || (sk.getId() == L2Skill.SKILL_DIVINE_INSPIRATION && !Config.AUTO_LEARN_DIVINE_INSPIRATION && !isGM()))
+				if (   sk == null
+				    || (   sk.getId() == L2Skill.SKILL_DIVINE_INSPIRATION
+				        && !Config.AUTO_LEARN_DIVINE_INSPIRATION && !isGM())
+				    || (consumeSp && getSp() < s.getLevelUpSp()))
 				{
-					unLearnable++;
+					if (consumeSp && getSp() < s.getLevelUpSp())
+						insufficientSp = true;
 					continue;
 				}
 				
+				if (consumeSp) {
+					setSp(getSp() - s.getLevelUpSp());
+					final StatusUpdate su = new StatusUpdate(this);
+					su.addAttribute(StatusUpdate.SP, getSp());
+					sendPacket(su);
+					spConsumed += s.getLevelUpSp();
+				}
+
 				if (getSkillLevel(sk.getId()) == -1)
 				{
 					skillCounter++;
+				} else
+				{
+					skillLvlCounter++;
 				}
 				
 				// fix when learning toggle skills
@@ -2851,13 +2873,19 @@ public final class L2PcInstance extends L2Playable
 					}
 				}
 				addSkill(sk, true);
+				learned = true;
 			}
-			
+
 			//Get new available skills, some skills depend of previous skills to be available.
 			skills = SkillTreesData.getInstance().getAvailableSkills(this, getClassId(), includedByFs, includeAutoGet);
-		}
-		
+		}  while (learned);
+
+		if (consumeSp)
+			sendMessage("" + spConsumed + " SP has been consumed.");
 		sendMessage("You have learned " + skillCounter + " new skills.");
+		sendMessage("You have learned " + skillLvlCounter + " skill upgrades.");
+		if (insufficientSp)
+			sendMessage("You have insufficient SP to learn all remaining skills.");
 		return skillCounter;
 	}
 	

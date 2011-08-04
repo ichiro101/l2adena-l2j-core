@@ -311,7 +311,9 @@ abstract class AbstractAI implements Ctrl
 				onIntentionCast((L2Skill) arg0, (L2Object) arg1);
 				break;
 			case AI_INTENTION_MOVE_TO:
-				onIntentionMoveTo((L2CharPosition) arg0);
+				if (arg1 == null)
+					arg1 = new Boolean(false);
+				onIntentionMoveTo((L2CharPosition) arg0, (Boolean)arg1);
 				break;
 			case AI_INTENTION_FOLLOW:
 				onIntentionFollow((L2Character) arg0);
@@ -487,7 +489,7 @@ abstract class AbstractAI implements Ctrl
 	
 	protected abstract void onIntentionCast(L2Skill skill, L2Object target);
 	
-	protected abstract void onIntentionMoveTo(L2CharPosition destination);
+	protected abstract void onIntentionMoveTo(L2CharPosition destination, boolean via_keys);
 	
 	protected abstract void onIntentionFollow(L2Character target);
 	
@@ -619,14 +621,17 @@ abstract class AbstractAI implements Ctrl
 		}
 	}
 	
+	protected void moveTo(int x, int y, int z) {
+		moveTo(x, y, z, false);
+	}
+
 	/**
 	 * Move the actor to Location (x,y,z) server side AND client side by sending Server->Client packet CharMoveToLocation <I>(broadcast)</I>.<BR><BR>
 	 *
 	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : Low level function, used by AI subclasses</B></FONT><BR><BR>
 	 *
 	 */
-	protected void moveTo(int x, int y, int z)
-	{
+	protected void moveTo(int x, int y, int z, boolean via_keys) {
 		// Chek if actor can move
 		if (!_actor.isMovementDisabled())
 		{
@@ -635,7 +640,7 @@ abstract class AbstractAI implements Ctrl
 			_clientMovingToPawnOffset = 0;
 			
 			// Calculate movement data for a move to location action and add the actor to movingObjects of GameTimeController
-			_accessor.moveTo(x, y, z);
+			_accessor.moveTo(x, y, z, via_keys);
 			
 			// Send a Server->Client packet CharMoveToLocation to the actor and all L2PcInstance in its _knownPlayers
 			MoveToLocation msg = new MoveToLocation(_actor);

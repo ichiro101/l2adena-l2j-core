@@ -125,7 +125,7 @@ public class MoveBackwardToLocation extends L2GameClientPacket
 				activeChar.sendPacket(ActionFailed.STATIC_PACKET);
 				return;
 			}
-			activeChar.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, new L2CharPosition(_targetX, _targetY, _targetZ, 0));
+			activeChar.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, new L2CharPosition(_targetX, _targetY, _targetZ, 0), _moveMovement == 0);
 			
 			/*if (activeChar.getParty() != null)
 				activeChar.getParty().broadcastToPartyMembers(activeChar, new PartyMemberPosition(activeChar));*/

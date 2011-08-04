@@ -3477,7 +3477,7 @@ public abstract class L2Character extends L2Object
 		 */
 		public void moveTo(int x, int y, int z, int offset)
 		{
-			L2Character.this.moveToLocation(x, y, z, offset);
+			L2Character.this.moveToLocation(x, y, z, offset, false);
 		}
 		
 		/**
@@ -3485,7 +3485,11 @@ public abstract class L2Character extends L2Object
 		 */
 		public void moveTo(int x, int y, int z)
 		{
-			L2Character.this.moveToLocation(x, y, z, 0);
+			L2Character.this.moveToLocation(x, y, z, 0, false);
+		}
+		
+		public void moveTo(int x, int y, int z, boolean via_keys) {
+			L2Character.this.moveToLocation(x, y, z, 0, via_keys);
 		}
 		
 		/**
@@ -4410,7 +4414,7 @@ public abstract class L2Character extends L2Object
 	 * @param offset The size of the interaction area of the L2Character targeted
 	 *
 	 */
-	protected void moveToLocation(int x, int y, int z, int offset)
+	protected void moveToLocation(int x, int y, int z, int offset, boolean via_keys)
 	{
 		// Get the Move Speed of the L2Charcater
 		float speed = getStat().getMoveSpeed();
@@ -4566,7 +4570,7 @@ public abstract class L2Character extends L2Object
 		// Pathfinding checks. Only when geodata setting is 2, the LoS check gives shorter result
 		// than the original movement was and the LoS gives a shorter distance than 2000
 		// This way of detecting need for pathfinding could be changed.
-		if(Config.GEODATA == 2 && originalDistance-distance > 30 && distance < 2000 && !this.isAfraid())
+		if(Config.GEODATA == 2 && originalDistance-distance > 30 && distance < 2000 && !this.isAfraid() && !via_keys)
 		{
 			// Path calculation
 			// Overrides previous movement check
@@ -4591,8 +4595,7 @@ public abstract class L2Character extends L2Object
 									&& Math.abs(z - curZ) > 140)
 									|| (this instanceof L2Summon && !((L2Summon)this).getFollowStatus()))
 					{
-						getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
-						return;
+						// No path found, so use the previously found geodata path.
 					}
 					else
 					{

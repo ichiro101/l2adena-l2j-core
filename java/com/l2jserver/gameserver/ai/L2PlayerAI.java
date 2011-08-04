@@ -193,7 +193,7 @@ public class L2PlayerAI extends L2PlayableAI
 	 *
 	 */
 	@Override
-	protected void onIntentionMoveTo(L2CharPosition pos)
+	protected void onIntentionMoveTo(L2CharPosition pos, boolean via_keys)
 	{
 		if (getIntention() == AI_INTENTION_REST)
 		{
@@ -205,12 +205,12 @@ public class L2PlayerAI extends L2PlayableAI
 		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow())
 		{
 			clientActionFailed();
-			saveNextIntention(AI_INTENTION_MOVE_TO, pos, null);
+			saveNextIntention(AI_INTENTION_MOVE_TO, pos, via_keys);
 			return;
 		}
 		
 		// Set the Intention of this AbstractAI to AI_INTENTION_MOVE_TO
-		changeIntention(AI_INTENTION_MOVE_TO, pos, null);
+		changeIntention(AI_INTENTION_MOVE_TO, pos, via_keys);
 		
 		// Stop the actor auto-attack client side by sending Server->Client packet AutoAttackStop (broadcast)
 		clientStopAutoAttack();
@@ -219,7 +219,7 @@ public class L2PlayerAI extends L2PlayableAI
 		_actor.abortAttack();
 		
 		// Move the actor to Location (x,y,z) server side AND client side by sending Server->Client packet CharMoveToLocation (broadcast)
-		moveTo(pos.x, pos.y, pos.z);
+		moveTo(pos.x, pos.y, pos.z, via_keys);
 	}
 	
 	@Override

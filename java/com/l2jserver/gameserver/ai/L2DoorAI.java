@@ -60,7 +60,7 @@ public class L2DoorAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onIntentionMoveTo(L2CharPosition destination)
+	protected void onIntentionMoveTo(L2CharPosition destination, boolean via_keys)
 	{
 	}
 	

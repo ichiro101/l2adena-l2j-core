@@ -40,6 +40,7 @@ import com.l2jserver.loginserver.network.L2LoginClient;
 import com.l2jserver.loginserver.network.gameserverpackets.ServerStatus;
 import com.l2jserver.loginserver.network.serverpackets.LoginFail.LoginFailReason;
 import com.l2jserver.util.Base64;
+import com.l2jserver.util.BCrypt;
 import com.l2jserver.util.Rnd;
 import com.l2jserver.util.crypt.ScrambledKeyPair;
 import com.l2jserver.util.lib.Log;
@@ -504,11 +505,7 @@ public class LoginController
 		Connection con = null;
 		try
 		{
-			MessageDigest md = MessageDigest.getInstance("SHA");
-			byte[] raw = password.getBytes("UTF-8");
-			byte[] hash = md.digest(raw);
-			
-			byte[] expected = null;
+			String dbHash = null;
 			int access = 0;
 			int lastServer = 1;
 			String userIP = null;
@@ -520,7 +517,7 @@ public class LoginController
 			ResultSet rset = statement.executeQuery();
 			if (rset.next())
 			{
-				expected = Base64.decode(rset.getString("password"));
+				dbHash = rset.getString("password");
 				access = rset.getInt("accessLevel");
 				lastServer = rset.getInt("lastServer");
 				userIP = rset.getString("userIP");
@@ -532,8 +529,8 @@ public class LoginController
 			rset.close();
 			statement.close();
 			
-			// if account doesnt exists
-			if (expected == null)
+			// if account doesn't exists
+			if (dbHash == null)
 			{
 				if (Config.AUTO_CREATE_ACCOUNTS)
 				{
@@ -541,7 +538,7 @@ public class LoginController
 					{
 						statement = con.prepareStatement("INSERT INTO accounts (login,password,lastactive,accessLevel,lastIP) values(?,?,?,?,?)");
 						statement.setString(1, user);
-						statement.setString(2, Base64.encodeBytes(hash));
+						statement.setString(2, "bcrypt:" + BCrypt.hashpw(password, BCrypt.gensalt(12)));
 						statement.setLong(3, System.currentTimeMillis());
 						statement.setInt(4, 0);
 						statement.setString(5, address.getHostAddress());
@@ -624,14 +621,38 @@ public class LoginController
 						return false;
 					}
 				}
-				// check password hash
-				ok = true;
-				for (int i = 0; i < expected.length; i++)
+
+				// Check for password using bcrypt if the password starts with "bcrypt:", otherwise use the old sha-1 method and
+				// update it to use bcrypt.
+				if (dbHash.startsWith("bcrypt:"))
 				{
-					if (hash[i] != expected[i])
+					ok = BCrypt.checkpw(password, dbHash.substring("bcrypt:".length()));
+				} else
+				{
+					MessageDigest md = MessageDigest.getInstance("SHA");
+					byte[] raw = password.getBytes("UTF-8");
+					byte[] hash = md.digest(raw);
+					byte[] expected = Base64.decode(dbHash);
+
+					ok = true;
+					for (int i = 0; i < expected.length; i++)
 					{
-						ok = false;
-						break;
+						if (hash[i] != expected[i])
+						{
+							ok = false;
+							// No break to stop timing attacks.
+						}
+					}
+
+					// If the password was correct, rehash the password using bcrypt.
+					if (ok)
+					{
+						String newHash = "bcrypt:" + BCrypt.hashpw(password, BCrypt.gensalt(12));
+						statement = con.prepareStatement("UPDATE accounts SET password=? WHERE login=?");
+						statement.setString(1, newHash);
+						statement.setString(2, user);
+						statement.execute();
+						statement.close();
 					}
 				}
 			}

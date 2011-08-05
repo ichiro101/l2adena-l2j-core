@@ -369,20 +369,12 @@ public class EnterWorld extends L2GameClientPacket
 		}
 		
 		sendPacket(SystemMessage.getSystemMessage(SystemMessageId.WELCOME_TO_LINEAGE));
-		
-		activeChar.sendMessage(getText("VGhpcyBzZXJ2ZXIgdXNlcyBMMkosIGEgcHJvamVjdCBmb3VuZGVkIGJ5IEwyQ2hlZg==\n"));
-		activeChar.sendMessage(getText("YW5kIGRldmVsb3BlZCBieSB0aGUgTDJKIERldiBUZWFtIGF0IGwyanNlcnZlci5jb20=\n"));
-		
-		if (Config.DISPLAY_SERVER_VERSION)
-		{
-			if (Config.SERVER_VERSION != null)
-				activeChar.sendMessage(getText("TDJKIFNlcnZlciBWZXJzaW9uOg==")+" "+Config.SERVER_VERSION);
-			
-			if (Config.DATAPACK_VERSION != null)
-				activeChar.sendMessage(getText("TDJKIERhdGFwYWNrIFZlcnNpb246")+" "+Config.DATAPACK_VERSION);
-		}
-		activeChar.sendMessage(getText("Q29weXJpZ2h0IDIwMDQtMjAxMQ==\n"));
-		
+
+        // While you are free to remove this message,this is strongly discouraged and espeically
+        // frowned upon by the L2J community. Please consider before removing the credits
+        activeChar.sendMessage("This server runs L2Adena, a server emulator based on L2J");
+        activeChar.sendMessage("Visit https://github.com/l2adena for more information");
+
 		SevenSigns.getInstance().sendCurrentPeriodMsg(activeChar);
 		Announcements.getInstance().showAnnouncements(activeChar);
 		
@@ -496,7 +488,7 @@ public class EnterWorld extends L2GameClientPacket
 	}
 	
 	/**
-	 * @param activeChar
+	 * @param cha
 	 */
 	private void engage(L2PcInstance cha)
 	{
@@ -521,7 +513,8 @@ public class EnterWorld extends L2GameClientPacket
 	}
 	
 	/**
-	 * @param activeChar partnerid
+     * @param cha
+	 * @param partnerId
 	 */
 	private void notifyPartner(L2PcInstance cha, int partnerId)
 	{

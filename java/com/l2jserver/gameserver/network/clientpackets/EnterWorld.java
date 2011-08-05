@@ -373,7 +373,7 @@ public class EnterWorld extends L2GameClientPacket
         // While you are free to remove this message,this is strongly discouraged and espeically
         // frowned upon by the L2J community. Please consider before removing the credits
         activeChar.sendMessage("This server runs L2Adena, a server emulator based on L2J");
-        activeChar.sendMessage("Visit https://github.com/l2adena for more information");
+        activeChar.sendMessage("Visit https://github.com/Bigcheese/l2adena-l2j-core for more information");
 
 		SevenSigns.getInstance().sendCurrentPeriodMsg(activeChar);
 		Announcements.getInstance().showAnnouncements(activeChar);
